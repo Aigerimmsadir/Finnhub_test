@@ -2,9 +2,9 @@ from django.http import HttpResponse
 from .tasks import *
 import json
 from django_celery_beat.models import PeriodicTask, IntervalSchedule
+from django.views.decorators.csrf import csrf_exempt
 
-
-# Create your views here.
+@csrf_exempt
 def current_datetime(request):
     print('here', request)
     IntervalSchedule.objects.all().delete()
@@ -12,12 +12,13 @@ def current_datetime(request):
         every=7,
         period=IntervalSchedule.SECONDS,
     )
-    task_name = 'obtain_companies_finnhub'
+    task_name = 'obtain_news_finnhub'
+    
     # periodic task that will send emails everyday
     PeriodicTask.objects.create(
         interval=schedule,
         name=task_name,
-        task='obtain_companies_finnhub',
+        task='obtain_news_finnhub',
 
     )
     return HttpResponse(status=201)

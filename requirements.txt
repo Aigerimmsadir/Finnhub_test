@@ -5,3 +5,5 @@ pika
 celery
 django-celery-beat
 requests
+psycopg2
+Redis

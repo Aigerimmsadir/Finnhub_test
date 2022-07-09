@@ -1,0 +1,124 @@
+
+version: "3.3"
+   
+services:
+  redis:
+      image: redis:alpine
+      env_file: .credentials/.devcontainer.env
+      command: "redis-server --requirepass 111"
+      ports:
+        - '6379:6379'
+      networks:
+        - djangonetwork
+  rabbit_mq:
+
+    # we use management image to get the
+    # plugin for web dashboard
+    image: rabbitmq:3.8-rc-management
+    container_name: rabbit_mq
+    ports:
+        - '5672:5672'
+        - '15672:15672'
+    networks:
+      - djangonetwork
+
+  db:
+    image: postgres
+    env_file: .credentials/.devcontainer.env
+    restart: always
+    volumes:
+      - pgdata:/var/lib/postgresql/data/
+      - ./sql/initdb.sh:/docker-entrypoint-initdb.d/initdb.sh
+    ports:
+      - 50005:5432
+    networks:
+      - djangonetwork
+  db_data_retriever:
+    image: postgres
+    env_file: .credentials/.devcontainer.env
+    restart: always
+    volumes:
+      - pgdata2:/var/lib/postgresql/data/
+      - ./sql/initdb_f.sh:/docker-entrypoint-initdb.d/initdb_f.sh
+    ports:
+      - 50008:5432
+    networks:
+      - djangonetwork
+  app-main:
+    build:
+      context: ../
+      dockerfile: .devcontainer/Dockerfile
+    # command: /bin/sh -c "while sleep 1000; do :; done"
+    command: sh -c "cd finnhub_main && python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    env_file: .credentials/.devcontainer.env
+    volumes:
+      - ../:/workspace:cached
+    ports:
+      - "8000:8000"
+    depends_on:
+        - rabbit_mq
+        - db
+        - consumer-main
+    links:
+       - db:db
+    networks:
+      - djangonetwork
+  app-data_retriever:
+    build:
+      context: ../
+      dockerfile: .devcontainer/Dockerfile
+    # command: /bin/sh -c "while sleep 1000; do :; done"
+    command: sh -c "cd data_retriever && python manage.py makemigrations && python manage.py migrate &&  python manage.py runserver 0.0.0.0:1234"
+    env_file: .credentials/.devcontainer.env
+    volumes:
+      - ../:/workspace:cached
+    ports:
+      - "1234:1234"
+    depends_on:
+        - rabbit_mq
+        - celery
+        - db_data_retriever
+        - consumer-main
+    links:
+       - db_data_retriever:db_data_retriever
+    networks:
+      - djangonetwork
+  consumer-main:
+    build:
+      context: ../
+      dockerfile: .devcontainer/Dockerfile
+    # command: /bin/sh -c "while sleep 1000; do :; done"
+    command: sh -c "python finnhub_main/consumer.py"
+    env_file: .credentials/.devcontainer.env
+    volumes:
+      - ../:/workspace:cached
+    depends_on:
+        - rabbit_mq
+        - db_data_retriever
+    links:
+       - db_data_retriever:db_data_retriever
+    networks:
+      - djangonetwork
+  celery:
+    restart: always
+    build:
+      context: ../
+      dockerfile: .devcontainer/Dockerfile
+    command: sh -c  "cd data_retriever && celery -A data_retriever beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler"
+    volumes:
+      - ../:/workspace:cached
+    env_file: .credentials/.devcontainer.env
+    depends_on:
+      - db_data_retriever
+      - redis
+      - rabbit_mq
+    networks:
+      - djangonetwork
+  
+networks:
+  djangonetwork:
+    driver: bridge
+volumes:
+  pgdata:
+  pgdata2:
+    
