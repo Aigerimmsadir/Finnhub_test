@@ -7,3 +7,6 @@ django-celery-beat
 requests
 psycopg2
 Redis
+PyJWT==1.7.1
+djangorestframework-jwt==1.11.0
+djangorestframework-simplejwt==4.6.0

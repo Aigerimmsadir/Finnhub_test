@@ -1,4 +1,4 @@
-from main.models import CompanyNew
+
 import pika
 import json
 import django
@@ -13,6 +13,7 @@ path.append('/workspace/finnhub_main/finnhub_main/settings.py')
 environ.setdefault('DJANGO_SETTINGS_MODULE', 'finnhub_main.settings')
 
 django.setup()
+from main.models import CompanyNew
 connection = pika.BlockingConnection(pika.ConnectionParameters('rabbit_mq'))
 channel = connection.channel()
 channel.queue_declare(queue='companies')

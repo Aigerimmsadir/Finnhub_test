@@ -114,7 +114,24 @@ services:
       - rabbit_mq
     networks:
       - djangonetwork
-  
+  app-email_sender:
+    build:
+      context: ../
+      dockerfile: .devcontainer/Dockerfile
+    # command: /bin/sh -c "while sleep 1000; do :; done"
+    command: sh -c "cd email_server && python manage.py makemigrations && python manage.py migrate &&  python manage.py runserver 0.0.0.0:9009"
+    env_file: .credentials/.devcontainer.env
+    volumes:
+      - ../:/workspace:cached
+    ports:
+      - "9009:9009"
+    depends_on:
+        - rabbit_mq
+        - celery
+    networks:
+      - djangonetwork
+
+
 networks:
   djangonetwork:
     driver: bridge
