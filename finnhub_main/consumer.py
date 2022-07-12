@@ -9,15 +9,15 @@ import pytz
 
 
 # Your path to settings.py file
-path.append('/workspace/finnhub_main/finnhub_main/settings.py')
+path.append('/home/transavia/Desktop/zimran_finnhub/Finnhub_test/finnhub_main/finnhub_main/settings.py')
 environ.setdefault('DJANGO_SETTINGS_MODULE', 'finnhub_main.settings')
 
 django.setup()
 from main.models import CompanyNew
-connection = pika.BlockingConnection(pika.ConnectionParameters('rabbit_mq'))
+connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
 channel = connection.channel()
 channel.queue_declare(queue='companies')
-
+from main.producer import publish
 
 def callback(ch, method, properties, body):
     print("Received ...")
@@ -50,6 +50,7 @@ def callback(ch, method, properties, body):
             companynew_objs.append(company)
         CompanyNew.objects.bulk_create(companynew_objs)
         print(CompanyNew.objects.count())
+        publish('news_added', json.dumps(companies_new))
 
 
 channel.basic_consume(

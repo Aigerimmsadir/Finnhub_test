@@ -32,7 +32,7 @@ CELERY_IMPORTS = (
 # Application definition
 
 redisport = 6379
-redishostname = 'redis'
+redishostname = 'localhost'
 redispassword = 111
 CELERY_STORE_ERRORS_EVEN_IF_IGNORED = True
 # CELERY_BROKER_URL = "redis://:{}@{}:{}".format(
@@ -88,23 +88,23 @@ WSGI_APPLICATION = 'data_retriever.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#     }
-# }
-
 DATABASES = {
     'default': {
-        'ENGINE': "django.db.backends.postgresql",
-        'NAME': os.environ.get('POSTGRES_DB_AUTH'),
-        'USER': os.environ.get('POSTGRES_USER_AUTH'),
-        'PASSWORD': os.environ.get('POSTGRES_PASSWORD_AUTH'),
-        'HOST': 'db_data_retriever',
-        'PORT': 5432,
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': "django.db.backends.postgresql",
+#         'NAME': os.environ.get('POSTGRES_DB_AUTH'),
+#         'USER': os.environ.get('POSTGRES_USER_AUTH'),
+#         'PASSWORD': os.environ.get('POSTGRES_PASSWORD_AUTH'),
+#         'HOST': 'db_data_retriever',
+#         'PORT': 5432,
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
