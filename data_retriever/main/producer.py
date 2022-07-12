@@ -1,6 +1,6 @@
 import json , pika
 
-connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+connection = pika.BlockingConnection(pika.ConnectionParameters('rabbit_mq', heartbeat=600, blocked_connection_timeout=300))
 channel = connection.channel()
 
 def publish(method, body):

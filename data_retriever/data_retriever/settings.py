@@ -32,7 +32,7 @@ CELERY_IMPORTS = (
 # Application definition
 
 redisport = 6379
-redishostname = 'localhost'
+redishostname = 'redis'
 redispassword = 111
 CELERY_STORE_ERRORS_EVEN_IF_IGNORED = True
 # CELERY_BROKER_URL = "redis://:{}@{}:{}".format(

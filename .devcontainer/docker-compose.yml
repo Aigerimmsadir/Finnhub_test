@@ -130,6 +130,20 @@ services:
         - celery
     networks:
       - djangonetwork
+  consumer-email_sender:
+    build:
+      context: ../
+      dockerfile: .devcontainer/Dockerfile
+    # command: /bin/sh -c "while sleep 1000; do :; done"
+    command: sh -c "python email_server/consumer_email.py"
+    env_file: .credentials/.devcontainer.env
+    volumes:
+      - ../:/workspace:cached
+    depends_on:
+        - rabbit_mq
+    networks:
+      - djangonetwork
+  
 
 
 networks:

@@ -5,15 +5,14 @@ import django
 from sys import path
 from os import environ
 import pytz
-from main.utils import compute_news
 
 # Your path to settings.py file
-path.append('/home/transavia/Desktop/zimran_finnhub/Finnhub_test/email_server/email_sender/settings.py')
+path.append('/workspace/email_server/email_sender/settings.py')
 environ.setdefault('DJANGO_SETTINGS_MODULE', 'email_sender.settings')
 
 django.setup()
-from main.models import TicketInterest
-connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+from main.utils import compute_news
+connection = pika.BlockingConnection(pika.ConnectionParameters('rabbit_mq', heartbeat=600, blocked_connection_timeout=300))
 channel = connection.channel()
 channel.queue_declare(queue='newstickets')
 

@@ -9,12 +9,12 @@ import pytz
 
 
 # Your path to settings.py file
-path.append('/home/transavia/Desktop/zimran_finnhub/Finnhub_test/finnhub_main/finnhub_main/settings.py')
+path.append('/workspace/finnhub_main/finnhub_main/settings.py')
 environ.setdefault('DJANGO_SETTINGS_MODULE', 'finnhub_main.settings')
 
 django.setup()
 from main.models import CompanyNew
-connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+connection = pika.BlockingConnection(pika.ConnectionParameters('rabbit_mq', heartbeat=600, blocked_connection_timeout=300))
 channel = connection.channel()
 channel.queue_declare(queue='companies')
 from main.producer import publish
