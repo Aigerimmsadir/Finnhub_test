@@ -1,6 +1,4 @@
 from django.shortcuts import render
-
-# Create your views here.
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from .models import *
@@ -8,14 +6,15 @@ from .serializers import *
 from rest_framework import permissions
 from django.utils import timezone
 from rest_framework.views import APIView
-from django.contrib.auth.models import User
+from main.models import MainUser
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from django_celery_beat.models import PeriodicTask, IntervalSchedule
 
 
 # Create your views here.
-class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
+class MainUserViewSet(viewsets.ModelViewSet):
+    queryset = MainUser.objects.all()
+    serializer_class = MainUserSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
     def get_permissions(self):
@@ -40,3 +39,28 @@ class SubscribeToTicket(APIView):
         
         ticket.users_subscribed.add(request.user)
         return Response({'status':'ok'})
+
+
+
+class DailySummary(APIView):
+
+    def post(self, request):
+        print('here', request)
+        IntervalSchedule.objects.all().delete()
+        schedule, newsch = IntervalSchedule.objects.get_or_create(
+            every=15,
+            period=IntervalSchedule.SECONDS,
+        )
+        task_name = 'send_daily'
+        
+        # periodic task that will send emails everyday
+        PeriodicTask.objects.create(
+            interval=schedule,
+            name=task_name,
+            task='send_daily',
+
+        )
+        return Response({'yes':'ok'})
+
+
+

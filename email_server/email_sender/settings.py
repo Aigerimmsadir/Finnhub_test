@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_simplejwt',
+    'django_celery_beat',
     'main'
 ]
 # Email settings
@@ -50,6 +51,26 @@ EMAIL_HOST_USER = email
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST_PASSWORD = email_password
 EMAIL_USE_TLS = True
+
+CELERY_IMPORTS = (
+    'main.tasks'
+)
+
+redisport = 6379
+redishostname = 'redis'
+redispassword = 111
+CELERY_STORE_ERRORS_EVEN_IF_IGNORED = True
+# CELERY_BROKER_URL = "redis://:{}@{}:{}".format(
+# redispassword, redishostname, redisport)
+CELERY_BROKER_URL = "redis://:{}@{}:{}".format(
+    redispassword, redishostname, redisport)
+CELERY_RESULT_BACKEND = "redis://:{}@{}:{}".format(
+    redispassword, redishostname, redisport)
+CELERY_TIMEZONE = "Asia/Almaty"
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 5
+
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -91,12 +112,25 @@ JWT_AUTH = {
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#     }
+# }
+
+AUTH_USER_MODEL = 'main.MainUser'
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': "django.db.backends.postgresql",
+        'NAME': os.environ.get('POSTGRES_DB_AUTH'),
+        'USER': os.environ.get('POSTGRES_USER_AUTH'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD_AUTH'),
+        'HOST': 'db_email_sender1',
+        'PORT': 5432,
     }
 }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators

@@ -44,6 +44,17 @@ services:
       - 50008:5432
     networks:
       - djangonetwork
+  db_email_sender1:
+    image: postgres
+    env_file: .credentials/.devcontainer.env
+    restart: always
+    volumes:
+      - pgdata3:/var/lib/postgresql/data/
+      - ./sql/initdb_k.sh:/docker-entrypoint-initdb.d/initdb_k.sh
+    ports:
+      - 50002:5432
+    networks:
+      - djangonetwork
   app-main:
     build:
       context: ../
@@ -127,7 +138,8 @@ services:
       - "9009:9009"
     depends_on:
         - rabbit_mq
-        - celery
+        - celery2
+        - db_email_sender1
     networks:
       - djangonetwork
   consumer-email_sender:
@@ -141,10 +153,26 @@ services:
       - ../:/workspace:cached
     depends_on:
         - rabbit_mq
+        - db_email_sender1
+    links:
+       - db_email_sender1:db_email_sender1
+    networks:
+      - djangonetwork 
+  celery2:
+    restart: always
+    build:
+      context: ../
+      dockerfile: .devcontainer/Dockerfile
+    command: sh -c  "cd email_server && celery -A email_sender beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler"
+    volumes:
+      - ../:/workspace:cached
+    env_file: .credentials/.devcontainer.env
+    depends_on:
+      - db_email_sender1
+      - redis
+      - rabbit_mq
     networks:
       - djangonetwork
-  
-
 
 networks:
   djangonetwork:
@@ -152,4 +180,5 @@ networks:
 volumes:
   pgdata:
   pgdata2:
+  pgdata3:
     
