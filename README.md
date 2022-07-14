@@ -7,31 +7,41 @@ Docker compose files are inside hidden .devcontainer folder.
 docker-compose build
 docker-compose up
 ```
-## API:
-
+## API :
+ 
+First you need to register 
 **registration**:
  http://127.0.0.1:9009/users/  [POST]
  
    required fields:
-      username, email, password
+      email, password
 
+Then you will be able to log in
 **login** :
 http://127.0.0.1:9009/login/ [POST]
 
   required fields:: 
     email, password
     
+   
+You can subscribe to the news of the particular company. Choises: TSLA,NFLX,AMZN,BF,TWTR.
 
+Authorization required
+**subscribe** :
+[[http://127.0.0.1:9009/subscribe/]][POST]
 
+  required fields:: 
+    ticket
+  example:
+  ```bash
+{
+   "ticket":"NFLX"
+}
+```
 
-instagram_nickname
+At any time tou can obtain all existing news of all companies. Authorization is not required.
 
+**list all news** :
 
-**update a notebook record**:
-
-http://127.0.0.1:8000/records/<id>/ [PUT]
-
-
-**delete a notebook record**:
-
-http://127.0.0.1:8000/records/<id> [DELETE]
+[[http://127.0.0.1:8000/companynews/]][POST]
+    
