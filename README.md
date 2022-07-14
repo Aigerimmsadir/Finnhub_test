@@ -1,5 +1,5 @@
 # Finnhub_test
-# thenotebook
+
 
 ## SETUP:
 Docker compose files are inside hidden .devcontainer folder. 
@@ -7,6 +7,9 @@ Docker compose files are inside hidden .devcontainer folder.
 docker-compose build
 docker-compose up
 ```
+
+Hint: use VSCode for easier building
+
 ## API :
  
 First you need to register 
