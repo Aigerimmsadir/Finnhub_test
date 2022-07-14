@@ -5,5 +5,5 @@ channel = connection.channel()
 
 def publish(method, body):
     properties = pika.BasicProperties(method)
-    channel.basic_publish(exchange='', routing_key='companies', body=body, properties=properties)
+    channel.basic_publish(exchange='', routing_key='companynews', body=body, properties=properties)
 

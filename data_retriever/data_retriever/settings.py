@@ -19,7 +19,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'qlav7c56$09+x%8d_s1&3^)gaj&q)_!tlw9@k@$ty5k7rks&g2'
+SECRET_KEY = os.environ.get('secretkey_dataret')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -31,9 +31,9 @@ CELERY_IMPORTS = (
 )
 # Application definition
 
-redisport = 6379
-redishostname = 'redis'
-redispassword = 111
+redisport = os.environ.get('redisport')
+redishostname = os.environ.get('redishostname')
+redispassword = os.environ.get('redispassword')
 CELERY_STORE_ERRORS_EVEN_IF_IGNORED = True
 # CELERY_BROKER_URL = "redis://:{}@{}:{}".format(
 # redispassword, redishostname, redisport)
@@ -41,7 +41,7 @@ CELERY_BROKER_URL = "redis://:{}@{}:{}".format(
     redispassword, redishostname, redisport)
 CELERY_RESULT_BACKEND = "redis://:{}@{}:{}".format(
     redispassword, redishostname, redisport)
-CELERY_TIMEZONE = "Asia/Almaty"
+CELERY_TIMEZONE = os.environ.get('local_tz')
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 5
 INSTALLED_APPS = [

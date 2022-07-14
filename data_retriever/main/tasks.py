@@ -6,7 +6,7 @@ import json
 from .models import CompanyNew
 from datetime import datetime, timedelta
 import pytz
-
+import os
 
 @shared_task(name="obtain_news_finnhub")
 def obtain_news_finnhub():
@@ -22,11 +22,11 @@ def obtain_news_finnhub():
         res = requests.get(
             f'https://finnhub.io/api/v1/company-news?token=cb36h0aad3i3uh8votcg&symbol={t}&newfrom={today_str}&to={tomorrow_str}',
         )
+        print(res.text)
+        print()
         news_tsla = json.loads(res.text)
         news.extend(news_tsla)
 
-    news_nflx = json.loads(res.text)
-    news.extend(news_nflx)
     news_set = []
     news_set_ids = []
     for n in news:
@@ -38,7 +38,7 @@ def obtain_news_finnhub():
     companies_new = [n for n in news_set if str(
         n['id']) not in [ne.unique_id for ne in news_existing]]
 
-    local_tz = pytz.timezone("Asia/Almaty")
+    local_tz = pytz.timezone(os.environ.get('local_tz'))
 
     if companies_new:
         companynew_objs = []

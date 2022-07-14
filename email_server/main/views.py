@@ -42,25 +42,5 @@ class SubscribeToTicket(APIView):
 
 
 
-class DailySummary(APIView):
-
-    def post(self, request):
-        print('here', request)
-        IntervalSchedule.objects.all().delete()
-        schedule, newsch = IntervalSchedule.objects.get_or_create(
-            every=15,
-            period=IntervalSchedule.SECONDS,
-        )
-        task_name = 'send_daily'
-        
-        # periodic task that will send emails everyday
-        PeriodicTask.objects.create(
-            interval=schedule,
-            name=task_name,
-            task='send_daily',
-
-        )
-        return Response({'yes':'ok'})
-
 
 

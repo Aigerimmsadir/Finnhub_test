@@ -8,6 +8,5 @@ router.register(r'user', MainUserViewSet, basename='user')
 
 urlpatterns = [
     path('', include(router.urls)),
-     path('subscribe/', SubscribeToTicket.as_view()),
-     path('sum/', DailySummary.as_view())
+     path('subscribe/', SubscribeToTicket.as_view())
 ]

@@ -16,12 +16,12 @@ django.setup()
 from main.models import CompanyNew
 connection = pika.BlockingConnection(pika.ConnectionParameters('rabbit_mq', heartbeat=0))
 channel = connection.channel()
-channel.queue_declare(queue='companies')
+channel.queue_declare(queue='companynews')
 from main.producer import publish
 
 def callback(ch, method, properties, body):
     print("Received ...")
-    local_tz = pytz.timezone("Asia/Almaty")
+    local_tz = pytz.timezone(environ.get('local_tz'))
     try:
         data = json.loads(body)
     except Exception as e:
@@ -66,6 +66,6 @@ def callback(ch, method, properties, body):
 
 
 channel.basic_consume(
-    queue='companies', on_message_callback=callback, auto_ack=True)
+    queue='companynews', on_message_callback=callback, auto_ack=True)
 print("Started Consuming...")
 channel.start_consuming()

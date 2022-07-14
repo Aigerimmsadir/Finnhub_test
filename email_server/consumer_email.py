@@ -5,7 +5,7 @@ import django
 from sys import path
 from os import environ
 import pytz
-
+import os 
 # Your path to settings.py file
 path.append('/workspace/email_server/email_sender/settings.py')
 environ.setdefault('DJANGO_SETTINGS_MODULE', 'email_sender.settings')
@@ -19,7 +19,7 @@ channel.queue_declare(queue='newstickets')
 
 def callback(ch, method, properties, body):
     print("Received ...", properties.content_type, body)
-    local_tz = pytz.timezone("Asia/Almaty")
+    local_tz = pytz.timezone(os.environ.get('local_tz'))
     try:
         data = json.loads(body)
     except Exception as e:

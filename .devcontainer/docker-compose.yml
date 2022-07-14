@@ -7,7 +7,7 @@ services:
       env_file: .credentials/.devcontainer.env
       command: "redis-server --requirepass 111"
       ports:
-        - 6330:6379
+        - 6379:6379
       networks:
         - djangonetwork
   rabbit_mq:
@@ -17,8 +17,8 @@ services:
     image: rabbitmq:3.8-rc-management
     container_name: rabbit_mq
     ports:
-        - 3030:5672
-        - 2050:15672
+        - 5672:5672
+        - 15672:15672
     networks:
       - djangonetwork
 
@@ -75,26 +75,6 @@ services:
        - db:db
     networks:
       - djangonetwork
-  app-data_retriever:
-    build:
-      context: ../
-      dockerfile: .devcontainer/Dockerfile
-    # command: /bin/sh -c "while sleep 1000; do :; done"
-    command: sh -c "cd data_retriever && python manage.py makemigrations && python manage.py migrate &&  python manage.py runserver 0.0.0.0:1234"
-    env_file: .credentials/.devcontainer.env
-    volumes:
-      - ../:/workspace:cached
-    ports:
-      - "1234:1234"
-    depends_on:
-        - rabbit_mq
-        - celery
-        - db_data_retriever
-        - consumer-main
-    links:
-       - db_data_retriever:db_data_retriever
-    networks:
-      - djangonetwork
   consumer-main:
     build:
       context: ../
@@ -116,7 +96,7 @@ services:
     build:
       context: ../
       dockerfile: .devcontainer/Dockerfile
-    command: sh -c  "cd data_retriever && celery -A data_retriever beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler"
+    command: sh -c  "cd data_retriever && python manage.py makemigrations && python manage.py migrate && celery -A data_retriever beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler"
     volumes:
       - ../:/workspace:cached
     env_file: .credentials/.devcontainer.env
@@ -131,7 +111,7 @@ services:
       context: ../
       dockerfile: .devcontainer/Dockerfile
     # command: /bin/sh -c "while sleep 1000; do :; done"
-    command: sh -c "cd email_server && python manage.py makemigrations && python manage.py migrate &&  python manage.py runserver 0.0.0.0:9009"
+    command: sh -c "cd email_server && python manage.py runserver 0.0.0.0:9009"
     env_file: .credentials/.devcontainer.env
     volumes:
       - ../:/workspace:cached
@@ -165,14 +145,42 @@ services:
     build:
       context: ../
       dockerfile: .devcontainer/Dockerfile
-    command: sh -c  "cd email_server && celery -A email_sender beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler"
+    command: sh -c  "cd email_server && python manage.py makemigrations && python manage.py migrate &&  celery -A email_sender beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler"
     volumes:
       - ../:/workspace:cached
     env_file: .credentials/.devcontainer.env
     depends_on:
       - db_email_sender1
       - redis
-      - rabbit_mq
+    networks:
+      - djangonetwork
+  
+  daily_summary:
+    build:
+      context: ../
+      dockerfile: .devcontainer/Dockerfile
+    # command: /bin/sh -c "while sleep 1000; do :; done"
+    command: sh -c "python email_server/daily_summary.py"
+    env_file: .credentials/.devcontainer.env
+    volumes:
+      - ../:/workspace:cached
+    depends_on:
+        - celery2
+        - db_email_sender1
+    networks:
+      - djangonetwork
+  obtain_news:
+    build:
+      context: ../
+      dockerfile: .devcontainer/Dockerfile
+    # command: /bin/sh -c "while sleep 1000; do :; done"
+    command: sh -c "python data_retriever/obtainnews.py"
+    env_file: .credentials/.devcontainer.env
+    volumes:
+      - ../:/workspace:cached
+    depends_on:
+        - celery
+        - db_data_retriever
     networks:
       - djangonetwork
 

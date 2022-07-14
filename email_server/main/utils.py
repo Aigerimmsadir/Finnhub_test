@@ -35,7 +35,7 @@ def compute_news(rsstr):
         if subscribers:
             emails = [s.email for s in subscribers]
             send_mail(
-                json.dumps(sorted_by_tickets),
+                json.dumps(sorted_by_tickets[t]),
                 'TicketNew',
                 EMAIL_HOST_USER,
                 emails,

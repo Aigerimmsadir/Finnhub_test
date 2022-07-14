@@ -10,8 +10,10 @@ from email_sender.settings import EMAIL_HOST_USER
 
 @shared_task(name="send_daily")
 def send_daily():
+    print('started')
     today = datetime.now().replace(hour=0, minute=0,second=0,microsecond=0)
     CompanyNew.objects.filter(datetime_created__lt=today).delete()
+    
     tickets = list(TicketInterest.objects.exclude(users_subscribed=None).prefetch_related('users_subscribed'))
     group_by_tickets={
 
@@ -25,9 +27,8 @@ def send_daily():
         users_subscr = list(gt.users_subscribed.all())
         emails = [us.email for us in users_subscr]
         content =group_by_tickets[gt]
-        print(emails)
         send_mail(
-            json.dumps(content),
+            json.dumps(content[:5]),
             'Summary',
             EMAIL_HOST_USER,
             emails,
