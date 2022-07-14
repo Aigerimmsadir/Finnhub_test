@@ -7,7 +7,7 @@ services:
       env_file: .credentials/.devcontainer.env
       command: "redis-server --requirepass 111"
       ports:
-        - '6379:6379'
+        - 6330:6379
       networks:
         - djangonetwork
   rabbit_mq:
@@ -17,8 +17,8 @@ services:
     image: rabbitmq:3.8-rc-management
     container_name: rabbit_mq
     ports:
-        - '5672:5672'
-        - '15672:15672'
+        - 3030:5672
+        - 2050:15672
     networks:
       - djangonetwork
 
@@ -55,6 +55,7 @@ services:
       - 50002:5432
     networks:
       - djangonetwork
+
   app-main:
     build:
       context: ../
@@ -65,7 +66,7 @@ services:
     volumes:
       - ../:/workspace:cached
     ports:
-      - "8000:8000"
+      - "8002:8000"
     depends_on:
         - rabbit_mq
         - db
@@ -142,6 +143,7 @@ services:
         - db_email_sender1
     networks:
       - djangonetwork
+
   consumer-email_sender:
     build:
       context: ../
@@ -157,7 +159,7 @@ services:
     links:
        - db_email_sender1:db_email_sender1
     networks:
-      - djangonetwork 
+      - djangonetwork
   celery2:
     restart: always
     build:
@@ -173,6 +175,7 @@ services:
       - rabbit_mq
     networks:
       - djangonetwork
+
 
 networks:
   djangonetwork:

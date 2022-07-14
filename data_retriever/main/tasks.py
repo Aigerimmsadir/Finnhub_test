@@ -12,34 +12,19 @@ import pytz
 def obtain_news_finnhub():
     print('yes')
     datetime_now = datetime.now().replace(hour=0, microsecond=0, minute=0, second=0)
-    today_date = datetime_now
+    today_date = datetime_now - timedelta(days=1)
     tomorrow_date = datetime_now+timedelta(days=1)
     today_str = today_date.strftime('%Y-%m-%d')
     tomorrow_str = tomorrow_date.strftime('%Y-%m-%d')
     news = []
-    res = requests.get(
-        f'https://finnhub.io/api/v1/company-news?token=cb36h0aad3i3uh8votcg&symbol=TSLA&newfrom={today_str}&to={tomorrow_str}',
-    )
-    news_tsla = json.loads(res.text)
-    news.extend(news_tsla)
-    res = requests.get(
-        f'https://finnhub.io/api/v1/company-news?token=cb36h0aad3i3uh8votcg&symbol=FB&newfrom={today_str}&to={tomorrow_str}',
-    )
-    news_fb = json.loads(res.text)
-    news.extend(news_fb)
-    res = requests.get(
-        f'https://finnhub.io/api/v1/company-news?token=cb36h0aad3i3uh8votcg&symbol=AMZN&newfrom={today_str}&to={tomorrow_str}',
-    )
-    news_amzn = json.loads(res.text)
-    news.extend(news_amzn)
-    res = requests.get(
-        f'https://finnhub.io/api/v1/company-news?token=cb36h0aad3i3uh8votcg&symbol=TWTR&newfrom={today_str}&to={tomorrow_str}',
-    )
-    news_twtr = json.loads(res.text)
-    news.extend(news_twtr)
-    res = requests.get(
-        f'https://finnhub.io/api/v1/company-news?token=cb36h0aad3i3uh8votcg&symbol=+3&newfrom={today_str}&to={tomorrow_str}',
-    )
+    tickets = ['TSLA','FB','AMZN','TWTR','NFLX']
+    for t in tickets:
+        res = requests.get(
+            f'https://finnhub.io/api/v1/company-news?token=cb36h0aad3i3uh8votcg&symbol={t}&newfrom={today_str}&to={tomorrow_str}',
+        )
+        news_tsla = json.loads(res.text)
+        news.extend(news_tsla)
+
     news_nflx = json.loads(res.text)
     news.extend(news_nflx)
     news_set = []
